@@ -1,4 +1,4 @@
-
+require 'json'
 require_relative 'library'
 
 lib = Library.new
@@ -7,18 +7,21 @@ list = lib.reserved
 lib.logout
 
 puts '{'
-puts '  "reserved": '; p list
-puts '  "message": '
-puts '"'
+puts '  "reserved": ['
+list.each_with_index do |book, i|
+  puts JSON.pretty_generate(book)
+  puts ',' if i != list.length - 1
+end
+puts '],'
+print '  "message": "'
 if list.length == 0 then
-  puts '予約された資料はありません。'
+  print '予約された資料はありません。'
 else
-  puts list.length.to_s  + '件の予約資料があります。'
+  print list.length.to_s  + '件の予約資料があります。'
   list.each do |book|
-    puts book['no'] + '件目、'
-    puts book['title'] + '、'
-    puts book['status'] + '。'
+    print book['no'] + '件目、'
+    print book['title'] + '、'
+    print book['status'] + '。'
   end
 end
-puts '"'
-puts '}'
+print '"}'

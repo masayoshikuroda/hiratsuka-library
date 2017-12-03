@@ -15,14 +15,14 @@ class Library
     form.field_with(:name => 'UID').value = uid
     form.field_with(:name => 'PASS').value = pass
     form.submit
-    p '=== Login ==='
+    #p '=== Login ==='
   end
 
   def logout
     page = @agent.page
     form = page.form_with(:action => BASE_URL + 'clis/logout')
     form.submit
-    p '=== Logout ==='
+    #p '=== Logout ==='
   end
 
   def reserved
