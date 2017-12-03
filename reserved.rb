@@ -9,6 +9,7 @@ lib.logout
 puts '{'
 puts '  "reserved": '; p list
 puts '  "message": '
+puts '"'
 if list.length == 0 then
   puts '予約された資料はありません。'
 else
@@ -19,4 +20,5 @@ else
     puts book['status'] + '。'
   end
 end
+puts '"'
 puts '}'
