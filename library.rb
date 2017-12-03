@@ -61,15 +61,11 @@ class Library
     html.css('table tbody tr').each do |tr|
       book = {}
       book['no']     =  tr.css('td')[0].text
-      book['kumi']   =  tr.css('td')[1].text
-      book['title']  =  tr.css('td')[2].text
-      book['basyo']  =  tr.css('td')[3].text
+      book['title']  =  tr.css('td')[1].text
+      book['basyo']  =  tr.css('td')[1].text
+      book['start']  =  tr.css('td')[3].text
       book['limit']  =  tr.css('td')[4].text
-      book['status'] =  tr.css('td')[5].text
-      book['order']  =  tr.css('td')[6].text
-      book['start']  =  tr.css('td')[7].text
-      book['hatena'] =  tr.css('td')[8].text
-      book['encho']  =  tr.css('td')[9].text
+      book['owner']  =  tr.css('td')[6].text
       books.push book
     end
     link = page.link_with(:text => 'メニューへ戻る')
