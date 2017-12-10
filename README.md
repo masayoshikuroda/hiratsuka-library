@@ -2,7 +2,7 @@
 
 平塚図書館の情報を取得します。
 
-## Requred library
+## Required library
 
 - ruby
 -- mechanize
