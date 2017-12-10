@@ -9,6 +9,54 @@ class Library
     @agent = Mechanize.new
   end
 
+  def search(keyword)
+    page = @agent.get(BASE_URL + 'search2.html')
+    form = page.form_with(:action => '/clis/search')
+    form.field_with(:name => 'KEY1').value = keyword
+    form.radiobuttons_with(:id => 'SORT5')[0].check
+    form.submit
+    #p '=== Search ==='
+    books = []
+    page = @agent.page
+    html = Nokogiri::HTML(page.body)
+    html.css('table tbody tr').each do |tr|
+      book = {}
+      book['no']        = tr.css('td')[0].text
+      book['type']      = tr.css('td')[1].text
+      book['title']     = tr.css('td')[2].text
+      book['author']    = tr.css('td')[3].text
+      book['publisher'] = tr.css('td')[4].text
+      book['published'] = tr.css('td')[5].text
+      book['lang']      = tr.css('td')[6].text
+      books.push book
+    end
+    return books
+  end
+ 
+  def best_request
+    page = @agent.get(BASE_URL + 'shiraberu_6.html')
+    form = page.form_with(:action => '/clis/odrsearch')
+    form.radiobuttons_with(:id => 'CATEGORY1')[0].check
+    form.submit
+    #p '=== Best Reuest ==
+    books = []
+    page = @agent.page
+    html = Nokogiri::HTML(page.body)
+    html.css('table tbody tr').each do |tr|
+      book = {}
+      book['no']        = tr.css('td')[0].text
+      book['type']      = tr.css('td')[1].text
+      book['title']     = tr.css('td')[2].text
+      book['author']    = tr.css('td')[3].text
+      book['publisher'] = tr.css('td')[4].text
+      book['published'] = tr.css('td')[5].text
+      book['ordered']   = tr.css('td')[6].text
+      book['lang']      = tr.css('td')[7].text
+      books.push book
+    end
+    return books
+  end
+
   def login(uid, pass)
     page = @agent.get(BASE_URL + 'idcheck.html')
     form = page.form_with(:action => BASE_URL + 'clis/login')

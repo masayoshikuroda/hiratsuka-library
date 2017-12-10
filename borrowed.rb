@@ -2,6 +2,7 @@ require 'date'
 require 'json'
 require_relative 'library'
 
+#p ARGV
 lib = Library.new
 lib.login(ARGV[0], ARGV[1])
 list = lib.borrowed
