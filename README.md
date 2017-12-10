@@ -11,7 +11,7 @@
 
 ## Usage
 
-$ ruby reserved.rb UID PASS
-$ ruby borrowed.rb UID PASS
-$ ruby best_request.rb
-$ ruby search.rb KEYWORD
+    $ ruby reserved.rb UID PASS
+    $ ruby borrowed.rb UID PASS
+    $ ruby best_request.rb
+    $ ruby search.rb KEYWORD
