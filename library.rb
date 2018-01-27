@@ -2,6 +2,15 @@ require 'mechanize'
 require 'open-uri'
 require 'nokogiri'
 
+class String
+  def to_date()
+    year  = self.slice(0, 4).to_i
+    month = self.split('年')[1].split('月')[0].to_i
+    day   = self.split('月')[1].split('日')[0].to_i
+    return Date.new(year, month, day)
+  end	  
+end
+
 class Library
   BASE_URL = 'https://www.lib.city.hiratsuka.kanagawa.jp/'
 

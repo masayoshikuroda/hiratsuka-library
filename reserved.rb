@@ -18,10 +18,11 @@ if list.length == 0 then
   print '予約された資料はありません。'
 else
   print list.length.to_s  + '件の予約資料があります。'
-  list.each do |book|
-    print book['no'] + '件目、'
-    print book['title'] + '、'
-    print book['status'] + '。'
-  end
+  print list.count{|book| book['status'].include?('用意')}.to_s + '件が用意できています。'
+#  list.each do |book|
+#    print book['no'] + '件目、'
+#    print book['title'] + '、'
+#    print book['status'] + '。'
+#  end
 end
 print '"}'

@@ -20,15 +20,13 @@ if list.length == 0 then
   print '貸出された資料はありません。'
 else
   print list.length.to_s  + '件の貸出中の資料があります。'
-  list.each do |book|
-    print book['no'] + '件目、'
-    print book['title'] + '、の貸出期限は'
-    limit = book['limit'];
-    year = limit.slice(0, 4).to_i
-    month = limit.split('年')[1].split('月')[0].to_i
-    day = limit.split('月')[1].split('日')[0].to_i
-    diff = Date.new(year, month, day) - Date.today
-    print diff.to_i.to_s + '日後です。'
-  end
+  print list.count{|book| book['limit'].to_date - Date.today < 0}.to_s + '件が貸出期限を過ぎています。'
+#  list.each do |book|
+#    print book['no'] + '件目、'
+#    print book['title'] + '、の貸出期限は'
+#    limit = book['limit'];
+  #    diff = limit.to_date - Date.today
+#    print diff.to_i.to_s + '日後です。'
+#  end
 end
 print '"}'

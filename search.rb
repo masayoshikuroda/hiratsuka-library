@@ -18,7 +18,7 @@ if list.length == 0 then
 else
   print list.length.to_s  + '件の資料がみつかりました。'
   list.each_with_index do |book, i|
-    if i > 5 then
+    if i > 1 then
       break
     end
     print book['no'] + '件目、'
