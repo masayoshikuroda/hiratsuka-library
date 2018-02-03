@@ -3,6 +3,11 @@ require 'json'
 require_relative 'library'
 
 #p ARGV
+if ARGV.size < 2 then
+  puts "Usage: ruby #{$0} id pass"
+  exit
+end
+
 lib = Library.new
 lib.login(ARGV[0], ARGV[1])
 list = lib.borrowed

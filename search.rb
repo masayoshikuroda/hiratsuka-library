@@ -2,6 +2,12 @@ require 'date'
 require 'json'
 require_relative 'library'
 
+#p ARGV
+if ARGV.size < 1 then
+  puts "Usage: ruby #{$0} keyword"
+  exit
+end
+
 lib = Library.new
 list = lib.search(ARGV[0])
 
