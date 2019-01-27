@@ -2,15 +2,6 @@ require 'mechanize'
 require 'open-uri'
 require 'nokogiri'
 
-class String
-  def to_date()
-    year  = self.slice(0, 4).to_i
-    month = self.split('年')[1].split('月')[0].to_i
-    day   = self.split('月')[1].split('日')[0].to_i
-    return Date.new(year, month, day)
-  end	  
-end
-
 class Library
   BASE_URL = 'https://www.lib.city.hiratsuka.kanagawa.jp/'
 
@@ -19,114 +10,117 @@ class Library
   end
 
   def search(keyword)
-    page = @agent.get(BASE_URL + 'search2.html')
-    form = page.form_with(:action => '/clis/search')
-    form.field_with(:name => 'KEY1').value = keyword
-    form.radiobuttons_with(:id => 'SORT5')[0].check
-    form.submit
+    page = @agent.get(BASE_URL + 'index')
+    form = page.forms[1]
+    form.field_with(:name => 'textSearchWord').value = keyword
+    button = form.button_with(name: 'buttonSubmit') 
+    form.submit(button)
     #p '=== Search ==='
-    books = []
+
     page = @agent.page
-    html = Nokogiri::HTML(page.body)
-    html.css('table tbody tr').each do |tr|
-      book = {}
-      book['no']        = tr.css('td')[0].text
-      book['type']      = tr.css('td')[1].text
-      book['title']     = tr.css('td')[2].text
-      book['author']    = tr.css('td')[3].text
-      book['publisher'] = tr.css('td')[4].text
-      book['published'] = tr.css('td')[5].text
-      book['lang']      = tr.css('td')[6].text
-      books.push book
-    end
+    hit = page.search("//form/div[@class='number']/dl/dd/strong")[0].text
+    #p hit
+
+    books = getBooks()
+    
+    page = @agent.get(BASE_URL + 'idcheck')
     return books
   end
- 
+
   def best_request
-    page = @agent.get(BASE_URL + 'shiraberu_6.html')
-    form = page.form_with(:action => '/clis/odrsearch')
-    form.radiobuttons_with(:id => 'CATEGORY1')[0].check
-    form.submit
-    #p '=== Best Reuest ==
-    books = []
-    page = @agent.page
-    html = Nokogiri::HTML(page.body)
-    html.css('table tbody tr').each do |tr|
-      book = {}
-      book['no']        = tr.css('td')[0].text
-      book['type']      = tr.css('td')[1].text
-      book['title']     = tr.css('td')[2].text
-      book['author']    = tr.css('td')[3].text
-      book['publisher'] = tr.css('td')[4].text
-      book['published'] = tr.css('td')[5].text
-      book['ordered']   = tr.css('td')[6].text
-      book['lang']      = tr.css('td')[7].text
-      books.push book
-    end
+    page = @agent.get(BASE_URL + 'bestorderresult')
+    #p '=== Best Request ==='
+
+    books = getBooks()
+    
+    page = @agent.get(BASE_URL + 'idcheck')
     return books
   end
 
   def login(uid, pass)
-    page = @agent.get(BASE_URL + 'idcheck.html')
-    form = page.form_with(:action => BASE_URL + 'clis/login')
-    form.field_with(:name => 'UID').value = uid
-    form.field_with(:name => 'PASS').value = pass
-    form.submit
+    page = @agent.get(BASE_URL + 'idcheck')
+    form = page.forms[2]
+    form.field_with(:name => 'textUserId').value = uid
+    form.field_with(:name => 'textPassword').value = pass
+    button = form.button_with(name: 'buttonLogin') 
+    form.submit(button)
     #p '=== Login ==='
+
+    page = @agent.page
+    dts = page.search("//section[@class='topMenuBox']/dl/dt")
+    borrowed = dts[0].text.strip.sub('冊', '')
+    reserved = dts[1].text.strip.sub('冊', '')
+    return borrowed, reserved
   end
 
   def logout
     page = @agent.page
-    form = page.form_with(:action => BASE_URL + 'clis/logout')
-    form.submit
+    href = page.search("//li[@class='log_in']/a/@href").text
+    link = page.link_with(:href => href);
+    link.click
     #p '=== Logout ==='
   end
 
   def reserved
     page = @agent.page
-    link = page.link_with(:text => '予約状況照会へ')
+    link = page.link_with(:href => './reservelist')
     link.click
-    books = []
-    page = @agent.page
-    html = Nokogiri::HTML(page.body)
-    html.css('table tbody tr').each do |tr|
-      book = {}
-      book['no']     =  tr.css('td')[0].text
-      book['kumi']   =  tr.css('td')[1].text
-      book['title']  =  tr.css('td')[2].text
-      book['basyo']  =  tr.css('td')[3].text
-      book['limit']  =  tr.css('td')[4].text
-      book['status'] =  tr.css('td')[5].text
-      book['order']  =  tr.css('td')[6].text
-      book['start']  =  tr.css('td')[7].text
-      book['hatena'] =  tr.css('td')[8].text
-      book['encho']  =  tr.css('td')[9].text
-      books.push book
-    end
-    link = page.link_with(:text => 'メニューへ戻る')
-    link.click
+
+    books = getBooks()
+    
+    page = @agent.get(BASE_URL + 'idcheck')
     return books
   end
 
   def borrowed
     page = @agent.page
-    link = page.link_with(:text => '貸出状況照会へ')
+    link = page.link_with(:href => './rentallist')
     link.click
-    books = []
-    page = @agent.page
-    html = Nokogiri::HTML(page.body)
-    html.css('table tbody tr').each do |tr|
-      book = {}
-      book['no']     =  tr.css('td')[0].text
-      book['title']  =  tr.css('td')[1].text
-      book['basyo']  =  tr.css('td')[1].text
-      book['start']  =  tr.css('td')[3].text
-      book['limit']  =  tr.css('td')[4].text
-      book['owner']  =  tr.css('td')[6].text
-      books.push book
-    end
-    link = page.link_with(:text => 'メニューへ戻る')
-    link.click
+
+    books = getBooks()
+
+    page = @agent.get(BASE_URL + 'idcheck')
     return books
+  end
+
+  def getBooks
+    page = @agent.page
+    tables = page.search("//section[@class='infotable']")
+    books = []
+    tables.each{|table|
+      book = {}
+      book['no'] = table.search("h3/span[@class='num']").text
+      book['title'] = table.search("h3/a/span").text
+      dls = table.search("div[@class='tablecell']/div[@class='item']/dl")
+      dls.each{|dl|
+        dt = dl.search("dt").text.strip
+        dd = dl.search("dd").text.strip
+        book[toKey(dt)] = dd
+      }
+      if not book.include?('author') then
+        book['author'] = '不明'
+      end
+      books.push book
+    }
+    return books
+  end
+
+  def toKey(dt)
+    return case dt
+    when '資料の種類' then 'type'
+    when '出版年月'   then 'published_at'
+    when '著者名'     then 'author'
+    when '出版社'     then 'publisher'
+    when '貸出場所'    then 'basyo'
+    when '貸出日'     then 'borrowed_at'
+    when '延長'      then 'encho'
+    when '返却期限'   then 'limit_at'
+    when '受取場所'   then 'basy'
+    when '予約日'     then 'reserved_at'
+    when '予約状況'    then 'status'
+    when '予約件数'    then 'order'
+    when '順位'      then 'order'
+    else 'unknown'
+    end
   end
 end

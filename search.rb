@@ -22,16 +22,16 @@ print '  "message": "'
 if list.length == 0 then
   print '該当データはみつかりませんでした。'
 else
-  print list.length.to_s  + '件の資料がみつかりました。'
+  puts list.length.to_s  + '件の資料がみつかりました。'
   list.each_with_index do |book, i|
     if i > 1 then
       break
     end
     print book['no'] + '件目、'
-    print book['title'] + '、'
-    print '著者名は、'
-    print book['author'] + '、'
-    print book['published'] + '年に出版。'
+    print 'タイトルは、' + book['title'] + '、'
+    print '著者名は、'  + book['author'] + '、'
+    print '出版年は'    + book['published_at'] + '。'
+    puts
   end
 end
 print '"}'
