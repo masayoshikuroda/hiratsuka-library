@@ -1,4 +1,5 @@
 
+require 'json'
 require_relative 'library'
 
 lib = Library.new
