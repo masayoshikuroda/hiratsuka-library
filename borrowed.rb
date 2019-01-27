@@ -7,18 +7,18 @@ borrowed, reserved = lib.login(ARGV[0], ARGV[1])
 list = lib.borrowed
 lib.logout
 
-puts '{'
-puts '  "books": ['
+print '{'
+print '  "books": ['
 list.each_with_index do |book, i|
-  puts JSON.pretty_generate(book)
-  puts ',' if i != list.length - 1
+  print JSON.pretty_generate(book)
+  print ',' if i != list.length - 1
 end
-puts '],'
-puts '  "message": "'
+print '],'
+print '  "message": "'
 if list.length == 0 then
-  puts '貸出された資料はありません。'
+  print '貸出された資料はありません。'
 else
-  puts borrowed + '件の貸出資料があります。'
+  print borrowed + '件の貸出資料があります。'
   list.each_with_index do |book, i|
     if i > 1 then
       break
@@ -26,7 +26,6 @@ else
     print book['no'] + '件目、'
     print 'タイトルは、' + book['title'] + '、'
     print '貸出期限は' + book['limit_at'] + '。'
-    puts
   end
 end
 puts '"}'
