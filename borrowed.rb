@@ -7,7 +7,12 @@ list = lib.borrowed
 lib.logout
 
 puts '{'
-puts '  "borrowed": '; p list
+puts '  "books": ['
+list.each_with_index do |book, i|
+  puts JSON.pretty_generate(book)
+  puts ',' if i != list.length - 1
+end
+puts '],'
 puts '  "message": "'
 if list.length == 0 then
   puts '貸出された資料はありません。'

@@ -12,7 +12,7 @@ lib = Library.new
 list = lib.search(ARGV[0])
 
 puts '{'
-puts '  "search": ['
+puts '  "books": ['
 list.each_with_index do |book, i|
   puts JSON.pretty_generate(book)
   puts ',' if i != list.length - 1

@@ -6,7 +6,7 @@ lib = Library.new
 list = lib.best_request
 
 puts '{'
-puts '  "best_request": ['
+puts '  "books": ['
 list.each_with_index do |book, i|
   puts JSON.pretty_generate(book)
   puts ',' if i != list.length - 1
