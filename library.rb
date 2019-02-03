@@ -1,3 +1,4 @@
+require 'date'
 require 'mechanize'
 require 'open-uri'
 require 'nokogiri'
@@ -47,10 +48,11 @@ class Library
     #p '=== Login ==='
 
     page = @agent.page
+    message = page.search("//div[@class='mainBox']/section[1]/p/span").text.strip
     dts = page.search("//section[@class='topMenuBox']/dl/dt")
     borrowed = dts[0].text.strip.sub('冊', '')
     reserved = dts[1].text.strip.sub('冊', '')
-    return borrowed, reserved
+    return message, borrowed, reserved
   end
 
   def logout
@@ -122,5 +124,12 @@ class Library
     when '順位'      then 'order'
     else 'unknown'
     end
+  end
+
+  def toDate(value)
+    value = value.sub(/年/, '/')
+    value = value.sub(/月/, '/')
+    value = value.sub(/日/, '')
+    return Date.parse(value)
   end
 end

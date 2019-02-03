@@ -3,9 +3,10 @@ require 'json'
 require_relative 'library'
 
 lib = Library.new
-borrowed, reserved = lib.login(ARGV[0], ARGV[1])
+message, borrowed, reserved = lib.login(ARGV[0], ARGV[1])
 list = lib.borrowed
 lib.logout
+over = list.select{|book| lib.toDate(book['limit_at']) < Date.today }.length.to_s
 
 print '{'
 print '  "books": ['
@@ -19,13 +20,6 @@ if list.length == 0 then
   print '貸出された資料はありません。'
 else
   print borrowed + '件の貸出資料があります。'
-  list.each_with_index do |book, i|
-    if i > 1 then
-      break
-    end
-    print book['no'] + '件目、'
-    print 'タイトルは、' + book['title'] + '、'
-    print '貸出期限は' + book['limit_at'] + '。'
-  end
+  print over + '件の貸出期限をすぎた資料があります。'
 end
 puts '"}'
