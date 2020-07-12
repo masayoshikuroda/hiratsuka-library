@@ -50,8 +50,8 @@ class Library
     page = @agent.page
     message = page.search("//div[@class='mainBox']/section[1]/p/span").text.strip
     dts = page.search("//section[@class='topMenuBox']/dl/dt")
-    borrowed = dts[0].text.strip.sub('冊', '')
-    reserved = dts[1].text.strip.sub('冊', '')
+    borrowed = dts[0].text.strip.sub('件', '')
+    reserved = dts[1].text.strip.sub('件', '')
     return message, borrowed, reserved
   end
 
