@@ -1,4 +1,3 @@
-
 require 'json'
 require_relative 'library'
 
@@ -14,7 +13,7 @@ list.each_with_index do |book, i|
   puts JSON.generate(book)
   print ',' if i != list.length - 1
 end
-print '],'
+print "], \"reserved\": #{reserved}, \"prepare\": #{prepare},"
 print '  "message": "'
 if list.length == 0 then
   print '予約された資料はありません。'

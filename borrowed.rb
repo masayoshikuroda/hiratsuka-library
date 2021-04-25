@@ -1,4 +1,3 @@
-
 require 'json'
 require_relative 'library'
 
@@ -14,7 +13,7 @@ list.each_with_index do |book, i|
   print JSON.pretty_generate(book)
   print ',' if i != list.length - 1
 end
-print '],'
+print "], \"borrowed\": #{borrowed}, \"over\": #{over}, "
 print '  "message": "'
 if list.length == 0 then
   print '貸出された資料はありません。'
