@@ -48,11 +48,26 @@ class Library
     #p '=== Login ==='
 
     page = @agent.page
-    message = page.search("//div[@class='mainBox']/section[1]/p/span").text.strip
-    dts = page.search("//section[@class='topMenuBox']/dl/dt")
-    borrowed = dts[0].text.strip.sub('件', '')
-    reserved = dts[1].text.strip.sub('件', '')
-    return message, borrowed, reserved
+    doc = Nokogiri::HTML(page.content.toutf8)
+    mainBox = doc.xpath("//div[@class='mainBox']")
+    if mainBox.nil? then
+      puts "mainBox not found!"
+    else
+      span = mainBox.xpath("section[1]/p/span") 
+      if span.size == 0 then
+        puts "msg not found!"
+      else
+        msg = span.text.strip
+      end
+      topMenuBoxes = mainBox.xpath("section/section[@class='topMenuBox']")
+      if topMenuBoxes.size == 0 then
+        puts "topMenuBox not found!"
+      else
+        borr = topMenuBoxes[0].xpath("dl/dt").text.strip.sub('件', '')
+        resv = topMenuBoxes[1].xpath("dl/dt").text.strip.sub('件', '')
+      end
+    end
+    return msg, borr, resv
   end
 
   def logout
@@ -137,12 +152,12 @@ end
 if __FILE__ == $0
   if ARGV.size != 2 then
     puts "Usage: $ ruby #{$0} UID PASS"
-    return
+    exit
   end
 
   lib = Library.new
-  lib.login(ARGV[1], ARGV[2])
-  puts "Lonined!"
+  m,b,r = lib.login(ARGV[1], ARGV[2])
+  puts "Lonin complete! #{m},#{b},#{r}"
   lib.logout
-  puts "Logout!"
+  puts "Logout complete!"
 end
