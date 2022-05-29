@@ -133,3 +133,16 @@ class Library
     return Date.parse(value)
   end
 end
+
+if __FILE__ == $0
+  if ARGV.size != 2 then
+    puts "Usage: $ ruby #{$0} UID PASS"
+    return
+  end
+
+  lib = Library.new
+  lib.login(ARGV[1], ARGV[2])
+  puts "Lonined!"
+  lib.logout
+  puts "Logout!"
+end

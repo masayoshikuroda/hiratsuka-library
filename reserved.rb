@@ -1,6 +1,11 @@
 require 'json'
 require_relative 'library'
 
+if ARGV.size != 2 then
+  puts "Usage: $ ruby #{$0} UID PASS"
+  return
+end
+
 lib = Library.new
 message, borrowed, reserved = lib.login(ARGV[0], ARGV[1])
 list = lib.reserved
