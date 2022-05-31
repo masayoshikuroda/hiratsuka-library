@@ -4,9 +4,11 @@
 
 ## Required library
 
-- ruby
- - selenium-webdriver
-
+```
+$ sudo apt install chromium-browser
+$ sudo apt install chromium-chromedriver
+$ sudo apt install ruby-selenium-webdriver
+```
 
 ## Usage
 ```
