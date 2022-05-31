@@ -9,7 +9,9 @@ class Library
         'args' => ['headless'],
       },
     )
-    @driver = Selenium::WebDriver.for :chrome, capabilities: capabilities
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.headless!
+    @driver = Selenium::WebDriver.for :chrome, options: options
     @driver.manage.timeouts.implicit_wait = 10
   end
 
