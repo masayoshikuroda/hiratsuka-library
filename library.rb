@@ -1,118 +1,99 @@
-require 'date'
-require 'mechanize'
-require 'open-uri'
-require 'nokogiri'
+require 'selenium-webdriver'
 
 class Library
   BASE_URL = 'https://www.lib.city.hiratsuka.kanagawa.jp/'
 
   def initialize
-    @agent = Mechanize.new
-  end
-
-  def search(keyword)
-    page = @agent.get(BASE_URL + 'index')
-    form = page.forms[1]
-    form.field_with(:name => 'textSearchWord').value = keyword
-    button = form.button_with(name: 'buttonSubmit') 
-    form.submit(button)
-    #p '=== Search ==='
-
-    page = @agent.page
-    hit = page.search("//form/div[@class='number']/dl/dd/strong")[0].text
-    #p hit
-
-    books = getBooks()
-    
-    page = @agent.get(BASE_URL + 'idcheck')
-    return books
-  end
-
-  def best_request
-    page = @agent.get(BASE_URL + 'bestorderresult')
-    #p '=== Best Request ==='
-
-    books = getBooks()
-    
-    page = @agent.get(BASE_URL + 'idcheck')
-    return books
+    capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
+      'goog:chromeOptions' => {
+        'args' => ['headless'],
+      },
+    )
+    @driver = Selenium::WebDriver.for :chrome, capabilities: capabilities
+    @driver.manage.timeouts.implicit_wait = 10
   end
 
   def login(uid, pass)
-    page = @agent.get(BASE_URL + 'idcheck')
-    form = page.forms[2]
-    form.field_with(:name => 'textUserId').value = uid
-    form.field_with(:name => 'textPassword').value = pass
-    button = form.button_with(name: 'buttonLogin') 
-    form.submit(button)
-    #p '=== Login ==='
+    @driver.navigate.to BASE_URL + 'idcheck'
+    form = @driver.find_element(:xpath, "//form[@id='inputForm49']")
+    form.find_element(:name, 'textUserId').send_keys(uid)
+    form.find_element(:name, 'textPassword').send_keys(pass)
+    form.find_element(:name, "buttonLogin").click
 
-    page = @agent.page
-    doc = Nokogiri::HTML(page.content.toutf8)
-    mainBox = doc.xpath("//div[@class='mainBox']")
-    if mainBox.nil? then
-      puts "mainBox not found!"
-    else
-      span = mainBox.xpath("section[1]/p/span") 
-      if span.size == 0 then
-        puts "msg not found!"
-      else
-        msg = span.text.strip
-      end
-      topMenuBoxes = mainBox.xpath("section/section[@class='topMenuBox']")
-      if topMenuBoxes.size == 0 then
-        puts "topMenuBox not found!"
-      else
-        borr = topMenuBoxes[0].xpath("dl/dt").text.strip.sub('件', '')
-        resv = topMenuBoxes[1].xpath("dl/dt").text.strip.sub('件', '')
-      end
-    end
-    return msg, borr, resv
+    anker = @driver.find_element(:xpath, '//li[@class="nav02"]/a')
+    anker.click
+    
+    mainBox = @driver.find_element(:xpath, "//div[@class='mainBox']")
+    message = mainBox.find_element(:xpath, "section[1]/p/span").text.strip
+    borrowed = mainBox.find_element(:xpath, "section/section[1]/dl/dt").text.strip.sub('件', '')
+    reserved = mainBox.find_element(:xpath, "section/section[2]/dl/dt").text.strip.sub('件', '')
+    return message, borrowed, reserved
   end
 
   def logout
-    page = @agent.page
-    href = page.search("//li[@class='log_in']/a/@href").text
-    link = page.link_with(:href => href);
-    link.click
-    #p '=== Logout ==='
+    anchor = @driver.find_element(:xpath, "//li[@class='log_in']/a")
+    anchor.click
   end
 
   def reserved
-    page = @agent.page
-    link = page.link_with(:href => './reservelist')
-    link.click
+    anchor = @driver.find_element(:xpath, '//dd[@class="linkBtn"]/a[@href="./reservelist"]')
+    anchor.click
 
     books = getBooks()
     
-    page = @agent.get(BASE_URL + 'idcheck')
+    anchor = @driver.find_element(:xpath, '//li[@class="nav02"]/a')
+    anchor.click
+
     return books
   end
 
   def borrowed
-    page = @agent.page
-    link = page.link_with(:href => './rentallist')
-    link.click
+    anchor = @driver.find_element(:xpath, '//dd[@class="linkBtn"]/a[@href="./rentallist"]')
+    anchor.click
 
     books = getBooks()
+    
+    anchor = @driver.find_element(:xpath, '//li[@class="nav02"]/a')
+    anchor.click
 
-    page = @agent.get(BASE_URL + 'idcheck')
+    return books
+  end
+
+  def search(keyword)
+    @driver.navigate.to BASE_URL + 'index'
+    form = @driver.find_element(:xpath, '//section[@class="topSearch"]/form')
+    form.find_element(:name, 'textSearchWord').send_keys(keyword)
+    form.find_element(:name, "buttonSubmit").click
+
+    hit = @driver.find_element(:xpath, '//form/div[@class="number"]/dl/dd/strong').text
+
+    books = getBooks()
+    
+    return books
+  end
+
+  def best_request
+    @driver.navigate.to BASE_URL + 'bestorderresult'
+
+    books = getBooks()
+    
     return books
   end
 
   def getBooks
-    page = @agent.page
-    tables = page.search("//section[@class='infotable']")
+    tables = @driver.find_elements(:xpath, '//section[@class="infotable"]')
     books = []
     tables.each{|table|
       book = {}
-      book['no'] = table.search("h3/span[@class='num']").text
-      book['title'] = table.search("h3/a/span").text
-      dls = table.search("div[@class='tablecell']/div[@class='item']/dl")
+      book['no'] = table.find_element(:xpath, 'h3/span[@class="num"]').text
+      book['title'] = table.find_element(:xpath, 'h3/a/span').text
+      dls = table.find_elements(:xpath, 'div[@class="tablecell"]/div[@class="item"]/dl')
       dls.each{|dl|
-        dt = dl.search("dt").text.strip
-        dd = dl.search("dd").text.strip
-        book[toKey(dt)] = dd
+        if dl.find_elements(:xpath, 'dt').size != 0 then
+            dt = dl.find_element(:xpath, 'dt').text.strip
+            dd = dl.find_element(:xpath, 'dd').text.strip
+            book[toKey(dt)] = dd
+        end
       }
       if not book.include?('author') then
         book['author'] = '不明'
@@ -154,10 +135,10 @@ if __FILE__ == $0
     puts "Usage: $ ruby #{$0} UID PASS"
     exit
   end
-
+  
   lib = Library.new
-  m,b,r = lib.login(ARGV[1], ARGV[2])
-  puts "Lonin complete! #{m},#{b},#{r}"
+  m,b,r = lib.login(ARGV[0], ARGV[1])
+  puts "Lonin complete! #{m}, borrowed=#{b}, reserved=#{r}"
   lib.logout
   puts "Logout complete!"
 end

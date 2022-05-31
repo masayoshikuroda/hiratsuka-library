@@ -5,8 +5,7 @@
 ## Required library
 
 - ruby
- - mechanize
- - nokogiri
+ - selenium-webdriver
 
 
 ## Usage
