@@ -1,3 +1,4 @@
+require 'json'
 require 'selenium-webdriver'
 
 class Library
@@ -140,7 +141,7 @@ if __FILE__ == $0
   
   lib = Library.new
   m,b,r = lib.login(ARGV[0], ARGV[1])
-  puts "Lonin complete! #{m}, borrowed=#{b}, reserved=#{r}"
+  output = { "message" => m, "borrowed" => b, "reserved" => r}
   lib.logout
-  puts "Logout complete!"
+  puts JSON.generate(output)
 end
