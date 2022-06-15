@@ -27,7 +27,9 @@ class Library
     anker.click
     
     mainBox = @driver.find_element(:xpath, "//div[@class='mainBox']")
-    message = mainBox.find_element(:xpath, "section[1]/p/span").text.strip
+    message = '図書館からのメッセージはありません。'
+    spans =  mainBox.find_elements(:xpath, "section[1]/p/span")
+    message = spans[0].text.strip if spans.length > 0
     borrowed = mainBox.find_element(:xpath, "section/section[1]/dl/dt").text.strip.sub('件', '')
     reserved = mainBox.find_element(:xpath, "section/section[2]/dl/dt").text.strip.sub('件', '')
     return message, borrowed, reserved

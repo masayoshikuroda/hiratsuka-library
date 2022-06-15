@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Local File",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "${workspaceRoot}/library.rb",
+            "args": [ "278481-2", "1119"],
+            "pathToRDebugIDE": "/Users/masayoshi/.rbenv/shims/rdebug-ide"
+        }
+    ]
+}
